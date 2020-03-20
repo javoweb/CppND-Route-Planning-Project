@@ -35,16 +35,14 @@ float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
 void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
     if (current_node->neighbors.size() == 0){
         current_node->FindNeighbors();  // Populate neighbors list (vector indeed)
-        for (RouteModel::Node *neighbor:current_node->neighbors){   // Iterate over neighbors
-            float delta_g = current_node->distance(*neighbor);      // Calculate distance to neighbor
-            neighbor->g_value = current_node->g_value + delta_g;    // Set g for neighbor
-            neighbor->h_value = this->CalculateHValue(neighbor);    // Set h for neighbor
-            neighbor->parent = current_node;                        // Set neighbor's parent
-        }
-        for (RouteModel::Node *neighbor:current_node->neighbors){   // Iterate over neighbors
+        for (RouteModel::Node *neighbor:current_node->neighbors){       // Iterate over neighbors
             if (!neighbor->visited){
-                this->open_list.push_back(neighbor);                // Add to the open list
-                neighbor->visited = true;                           // Mark node as visited
+                float delta_g = current_node->distance(*neighbor);      // Calculate distance to neighbor
+                neighbor->g_value = current_node->g_value + delta_g;    // Set g for neighbor
+                neighbor->h_value = this->CalculateHValue(neighbor);    // Set h for neighbor
+                neighbor->parent = current_node;                        // Set neighbor's parent
+                this->open_list.push_back(neighbor);                    // Add to the open list
+                neighbor->visited = true;                               // Mark node as visited
             }
         }
     }
@@ -112,13 +110,13 @@ void RoutePlanner::AStarSearch() {
     RouteModel::Node *current_node = nullptr;
 
     // TODO: Implement your solution here.
+    this->start_node->visited = true;
     this->AddNeighbors(this->start_node);
     while (this->open_list.size()>0){
         RouteModel::Node *next_node = this->NextNode();
         current_node = next_node;
-        std::cout << this->open_list.size() << " " << current_node << std::endl;
         if (current_node->distance(*this->end_node) == 0){
-            std::cout << "done";
+            std::cout << "Done! Path found!" << std::endl;
             this->m_Model.path = this->ConstructFinalPath(current_node);
             return;
         }
